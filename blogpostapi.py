@@ -14,10 +14,17 @@ class posts(Resource):
 	def get(self):
 		# connect to db
 		conn = sqlite3.connect('blog.db')
+
+		# set cursor
 		c = conn.cursor()
 
 		# query string
 		posts = conn.execute("select * from posts").fetchall()
+
+		# close db connection
+		conn.close
+
+		# display blog posts
 		return posts
 
 # create post
@@ -41,6 +48,8 @@ class post(Resource):
 		# queries
 		query = "insert into posts values(?,?,?)"
 		query = conn.execute(query, (postid,title,body))
+
+		# commit and close db connection
 		conn.commit()
 		conn.close()
 

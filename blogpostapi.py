@@ -4,10 +4,6 @@
 import sqlite3
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
-from sqlalchemy import create_engine
-
-# sqlite engine
-e = create_engine('sqlite:///blog.db')
 
 # flask object
 app = Flask(__name__)
@@ -17,20 +13,19 @@ api = Api(app)
 class posts(Resource):
 	def get(self):
 		# connect to db
-		conn = e.connect()
+		conn = sqlite3.connect('blog.db')
+		c = conn.cursor()
+
 		# query string
-		query = conn.execute("select * from posts")
-		results = []
-		for row in query.cursor.fetchall():
-			results += [{'post_id': str(row[0]), 'title': str(row[1]), 'body': str(row[2])}]
-		return results
+		posts = conn.execute("select * from posts").fetchall()
+		return posts
 
 # create post
 class post(Resource):
 	def post(self):
 		# connect to db
-		conn = e.connect()
-		curs = conn.cursor()
+		conn = sqlite3.connect('blog.db')
+		c = conn.cursor()
 
 		# parser for args
 		parser = reqparse.RequestParser()
@@ -41,11 +36,13 @@ class post(Resource):
 		# args
 		title = str(args['title']).strip()
 		body = str(args['body']).strip()
-		postid = curs.lastrowid
+		postid = c.lastrowid
 
 		# queries
 		query = "insert into posts values(?,?,?)"
 		query = conn.execute(query, (postid,title,body))
+		conn.commit()
+		conn.close()
 
 		# results
 		return 'Blog post has been successfully submitted.'

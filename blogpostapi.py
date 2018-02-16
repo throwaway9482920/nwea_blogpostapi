@@ -53,7 +53,7 @@ class post(Resource):
 		conn.commit()
 		conn.close()
 
-		# results
+		# confirmation message 
 		return 'Blog post has been successfully submitted.'
 
 # api resources
